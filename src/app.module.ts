@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
 import { CircuitsController } from './circuits/circuits.controller';
 import { CircuitsService } from './circuits/circuits.service';
 import { Circuit } from './circuits/entities/circuits.entity';
@@ -10,16 +9,15 @@ import { Lead } from './leads/entities/lead.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // charge les variables d'environnement
     TypeOrmModule.forRoot({
-      type: 'mysql',
+      type: 'postgres',
       host: process.env.DB_HOST,
-      port: process.env.DB_PORT ? parseInt(process.env.DB_PORT, 10) : 3306,
+      port: Number(process.env.DB_PORT),
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [Circuit, Lead],
-      synchronize: true, // true pour dev, false en prod
+      synchronize: true, // pour dev/test uniquement
     }),
     TypeOrmModule.forFeature([Circuit, Lead]),
   ],
