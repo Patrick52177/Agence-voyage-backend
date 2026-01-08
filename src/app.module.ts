@@ -9,22 +9,24 @@ import { Lead } from './leads/entities/lead.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,        // Supabase host
-      port: Number(process.env.DB_PORT),// 5432
-      username: process.env.DB_USER,    // postgres
-      password: process.env.DB_PASSWORD,// ton mot de passe Supabase
-      database: process.env.DB_NAME,    // postgres
-      entities: [Circuit, Lead],
-      synchronize: true,                // seulement dev/test
-      ssl: {
-        rejectUnauthorized: false,      // SSL nécessaire pour Supabase
-      },
-      extra: {
-        family: 4,                      // force IPv4 (évite ENETUNREACH)
-      },
-    }),
+   TypeOrmModule.forRoot({
+  type: 'postgres',
+  host: process.env.DB_HOST,        // Supabase host
+  port: Number(process.env.DB_PORT),// 5432
+  username: process.env.DB_USER,    // postgres
+  password: process.env.DB_PASSWORD,// ton mot de passe Supabase
+  database: process.env.DB_NAME,    // postgres
+  entities: [Circuit, Lead],
+  synchronize: true,                // seulement dev/test
+  ssl: {
+    rejectUnauthorized: false,      // SSL obligatoire pour Supabase
+  },
+  extra: {
+    // FORCE IPv4 sinon Render essaie IPv6 et ça casse
+    host: process.env.DB_HOST, 
+    family: 4
+  },
+}),
     TypeOrmModule.forFeature([Circuit, Lead]),
   ],
   controllers: [CircuitsController, LeadsController],
