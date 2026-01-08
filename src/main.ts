@@ -17,7 +17,7 @@ async function bootstrap() {
 
   // Active CORS pour ton frontend
   app.enableCors({
-    origin: process.env.FRONTEND_URL || '*', // remplace '*' par ton URL Vercel pour plus de sécurité
+    origin: process.env.FRONTEND_URL || 'https://agence-voyage-frontend-rmnf.vercel.app/', // remplace '*' par ton URL Vercel pour plus de sécurité
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
