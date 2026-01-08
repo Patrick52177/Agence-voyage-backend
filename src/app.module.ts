@@ -11,13 +11,19 @@ import { Lead } from './leads/entities/lead.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
+      host: process.env.DB_HOST,        // Supabase host
+      port: Number(process.env.DB_PORT),// 5432
+      username: process.env.DB_USER,    // postgres
+      password: process.env.DB_PASSWORD,// ton mot de passe Supabase
+      database: process.env.DB_NAME,    // postgres
       entities: [Circuit, Lead],
-      synchronize: true, // pour dev/test uniquement
+      synchronize: true,                // seulement dev/test
+      ssl: {
+        rejectUnauthorized: false,      // SSL nécessaire pour Supabase
+      },
+      extra: {
+        family: 4,                      // force IPv4 (évite ENETUNREACH)
+      },
     }),
     TypeOrmModule.forFeature([Circuit, Lead]),
   ],
