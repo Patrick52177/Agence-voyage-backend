@@ -14,8 +14,23 @@ export class CircuitsService {
   /* ============================
      CREATE
   ============================ */
-  create(dto: CreateCircuitDto) {
+  create(dto: Partial<Circuit>) {
     const circuit = this.circuitRepo.create(dto);
+    return this.circuitRepo.save(circuit);
+  }
+
+  /* ============================
+     UPDATE
+  ============================ */
+  async update(id: number, dto: Partial<Circuit>) {
+    const circuit = await this.circuitRepo.findOne({ where: { id } });
+
+    if (!circuit) {
+      throw new NotFoundException('Circuit introuvable');
+    }
+
+    // ✅ Fusionne les anciennes valeurs avec les nouvelles
+    Object.assign(circuit, dto);
     return this.circuitRepo.save(circuit);
   }
 
@@ -56,9 +71,7 @@ export class CircuitsService {
       query.andWhere('circuit.theme = :theme', { theme });
     }
 
-    return query
-      .orderBy('circuit.id', 'DESC')
-      .getMany();
+    return query.orderBy('circuit.id', 'DESC').getMany();
   }
 
   /* ============================

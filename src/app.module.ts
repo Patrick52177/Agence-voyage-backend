@@ -1,35 +1,40 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CircuitsController } from './circuits/circuits.controller';
-import { CircuitsService } from './circuits/circuits.service';
+import { ConfigModule } from '@nestjs/config';
+
 import { Circuit } from './circuits/entities/circuits.entity';
-import { LeadsController } from './leads/leads.controller';
-import { LeadsService } from './leads/leads.service';
 import { Lead } from './leads/entities/lead.entity';
+
+// ✅ Importe les modules complets au lieu des controllers/services directement
+import { CircuitsModule } from './circuits/circuits.module';
+import { LeadsModule } from './leads/leads.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
-   TypeOrmModule.forRoot({
-  type: 'postgres',
-  host: process.env.DB_HOST,        // Supabase host
-  port: Number(process.env.DB_PORT),// 5432
-  username: process.env.DB_USER,    // postgres
-  password: process.env.DB_PASSWORD,// ton mot de passe Supabase
-  database: process.env.DB_NAME,    // postgres
-  entities: [Circuit, Lead],
-  synchronize: true,                // seulement dev/test
-  ssl: {
-    rejectUnauthorized: false,      // SSL obligatoire pour Supabase
-  },
-  extra: {
-    // FORCE IPv4 sinon Render essaie IPv6 et ça casse
-    host: process.env.DB_HOST, 
-    family: 4
-  },
-}),
-    TypeOrmModule.forFeature([Circuit, Lead]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env' : '.env.local',
+    }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities: [Circuit, Lead],
+      synchronize: true,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      extra: process.env.DB_SSL === 'true' ? { family: 4 } : {},
+    }),
+    // ✅ Modules complets
+    CircuitsModule,
+    CloudinaryModule,
+    LeadsModule,
   ],
-  controllers: [CircuitsController, LeadsController],
-  providers: [CircuitsService, LeadsService],
+  // ✅ Plus besoin de lister les controllers et providers ici
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
