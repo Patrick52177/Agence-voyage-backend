@@ -8,10 +8,10 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { CircuitsService } from './circuits.service';
 import { CreateCircuitDto } from './dto/create-circuit.dto';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
@@ -20,53 +20,64 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 export class CircuitsController {
   constructor(
     private readonly circuitsService: CircuitsService,
-    private readonly cloudinaryService: CloudinaryService, // ✅ Ajouté
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   /* ============================
-     CREATE avec image
+     CREATE avec images
      POST /circuits
   ============================ */
   @Post()
-  @UseInterceptors(FileInterceptor('image')) // ✅ intercepte le fichier image
+  @UseInterceptors(FilesInterceptor('images', 10))
   async create(
     @Body() dto: CreateCircuitDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    let imageUrl: string | undefined;
+    let imageUrls: string[] = [];
 
-    // ✅ Si une image est envoyée, on l'upload sur Cloudinary
-    if (file) {
-      imageUrl = await this.cloudinaryService.uploadImage(file);
+    if (files && files.length > 0) {
+      imageUrls = await Promise.all(
+        files.map(file => this.cloudinaryService.uploadImage(file))
+      );
     }
 
     return this.circuitsService.create({
       ...dto,
-      image: imageUrl,
+      image: imageUrls[0] ?? dto.image,
+      images: imageUrls,
     });
   }
 
   /* ============================
-     UPDATE avec image
+     UPDATE avec images
      PUT /circuits/:id
   ============================ */
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FilesInterceptor('images', 10))
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: CreateCircuitDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    let imageUrl: string | undefined;
+    let newImageUrls: string[] = [];
 
-    if (file) {
-      imageUrl = await this.cloudinaryService.uploadImage(file);
+    if (files && files.length > 0) {
+      newImageUrls = await Promise.all(
+        files.map(file => this.cloudinaryService.uploadImage(file))
+      );
     }
+
+    // ✅ Images existantes conservées + nouvelles combinées
+    const existingImages = dto.existingImages
+      ? JSON.parse(dto.existingImages)
+      : [];
+
+    const allImages = [...existingImages, ...newImageUrls];
 
     return this.circuitsService.update(id, {
       ...dto,
-      // ✅ On ne remplace l'image que si une nouvelle est envoyée
-      ...(imageUrl && { image: imageUrl }),
+      image: allImages[0] ?? undefined,
+      images: allImages,
     });
   }
 

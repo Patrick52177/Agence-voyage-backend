@@ -38,23 +38,23 @@ export class CircuitsService {
      HOME → 3 circuits
   ============================ */
   async findHomeCircuits() {
-    return this.circuitRepo.find({
-      where: { isActive: true },
-      select: [
-        'id',
-        'title',
-        'description',
-        'duration',
-        'destination',
-        'theme',
-        'region',
-        'image',
-      ],
-      order: { id: 'DESC' },
-      take: 3,
-    });
-  }
-
+  return this.circuitRepo.find({
+    where: { isActive: true },
+    select: [
+      'id',
+      'title',
+      'description',
+      'duration',
+      'destination',
+      'theme',
+      'region',
+      'image',   // ✅ image principale
+      'images',  // ✅ toutes les images
+    ],
+    order: { id: 'DESC' },
+    take: 3,
+  });
+}
   /* ============================
      ALL + FILTERS
   ============================ */

@@ -21,10 +21,14 @@ export class CreateCircuitDto {
   region: string;
 
   // ✅ image gérée par Cloudinary — pas obligatoire dans le body
+  // create-circuit.dto.ts
   @IsOptional()
-  @IsString()
-  image?: string;
+@IsString()
+image?: string;
 
+@IsOptional()
+@IsArray()
+images?: string[];
   @IsOptional()
   @IsString()
   bestPeriod?: string;
@@ -96,4 +100,9 @@ export class CreateCircuitDto {
   })
   @IsArray()
   notIncluded?: string[];
+
+   @IsOptional()
+  @IsString()
+  existingImages?: string;
 }
+

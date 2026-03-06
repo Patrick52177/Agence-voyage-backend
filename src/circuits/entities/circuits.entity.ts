@@ -24,10 +24,13 @@ export class Circuit {
   @Column()
   region: string;
 
-  // ===== IMAGE CLOUDINARY =====
-  // ✅ Stocke l'URL https://res.cloudinary.com/...
+  // ✅ image principale (1ère image)
   @Column({ nullable: true })
-  image: string;
+image: string;
+
+// ✅ toutes les images
+@Column({ type: 'simple-json', nullable: true })
+images: string[];
 
   @Column({ nullable: true })
   bestPeriod: string;
