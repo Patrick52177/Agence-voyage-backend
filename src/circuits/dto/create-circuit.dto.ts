@@ -1,13 +1,85 @@
-import { IsString, IsArray, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+  IsObject,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
+// ✅ Helper pour parser les champs JSON depuis FormData
+const parseJson = (value: any) => {
+  if (typeof value === 'string') {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return value;
+};
+
 export class CreateCircuitDto {
-  @IsString()
-  title: string;
+  // ===== CHAMPS MULTILINGUES =====
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  title: { fr: string; en: string; es: string };
 
-  @IsString()
-  description: string;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  description: { fr: string; en: string; es: string };
 
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  bestPeriod?: { fr: string; en: string; es: string };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  travelerType?: { fr: string; en: string; es: string };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  idealFor?: { fr: string; en: string; es: string };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  priceNote?: { fr: string; en: string; es: string };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  highlights?: { fr: string[]; en: string[]; es: string[] };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsArray()
+  itinerary?: {
+    day: number;
+    title: { fr: string; en: string; es: string };
+    description: { fr: string; en: string; es: string };
+    accommodation?: string;
+  }[];
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  included?: { fr: string[]; en: string[]; es: string[] };
+
+  @IsOptional()
+  @Transform(({ value }) => parseJson(value))
+  @IsObject()
+  notIncluded?: { fr: string[]; en: string[]; es: string[] };
+
+  // ===== CHAMPS COMMUNS =====
   @IsString()
   duration: string;
 
@@ -20,32 +92,15 @@ export class CreateCircuitDto {
   @IsString()
   region: string;
 
-  // ✅ image gérée par Cloudinary — pas obligatoire dans le body
-  // create-circuit.dto.ts
-  @IsOptional()
-@IsString()
-image?: string;
-
-@IsOptional()
-@IsArray()
-images?: string[];
   @IsOptional()
   @IsString()
-  bestPeriod?: string;
+  image?: string;
 
   @IsOptional()
-  @IsString()
-  travelerType?: string;
+  @Transform(({ value }) => parseJson(value))
+  @IsArray()
+  images?: string[];
 
-  @IsOptional()
-  @IsString()
-  idealFor?: string;
-
-  @IsOptional()
-  @IsString()
-  priceNote?: string;
-
-  // ✅ FormData envoie les nombres en string — Transform les convertit
   @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   @IsNumber()
@@ -55,54 +110,7 @@ images?: string[];
   @IsBoolean()
   isActive?: boolean;
 
-  // ✅ FormData envoie les arrays en JSON string — Transform les parse
   @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try { return JSON.parse(value); } catch { return []; }
-    }
-    return value;
-  })
-  @IsArray()
-  highlights?: string[];
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try { return JSON.parse(value); } catch { return []; }
-    }
-    return value;
-  })
-  @IsArray()
-  itinerary?: {
-    day: number;
-    title: string;
-    description: string;
-    accommodation?: string;
-  }[];
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try { return JSON.parse(value); } catch { return []; }
-    }
-    return value;
-  })
-  @IsArray()
-  included?: string[];
-
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try { return JSON.parse(value); } catch { return []; }
-    }
-    return value;
-  })
-  @IsArray()
-  notIncluded?: string[];
-
-   @IsOptional()
   @IsString()
   existingImages?: string;
 }
-

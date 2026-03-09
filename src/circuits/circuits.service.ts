@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Circuit } from './entities/circuits.entity';
-import { CreateCircuitDto } from './dto/create-circuit.dto';
 
 @Injectable()
 export class CircuitsService {
@@ -10,6 +9,40 @@ export class CircuitsService {
     @InjectRepository(Circuit)
     private readonly circuitRepo: Repository<Circuit>,
   ) {}
+
+  // ✅ Helper — extrait la bonne langue d'un champ traduit
+  private translate(field: any, lang: string): any {
+    if (!field || typeof field !== 'object') return field;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return field[lang] ?? field['fr'] ?? '';
+  }
+
+  // ✅ Helper — traduit un circuit complet
+  private translateCircuit(circuit: Circuit, lang: string) {
+    return {
+      ...circuit,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      title:       this.translate(circuit.title, lang),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      description: this.translate(circuit.description, lang),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      bestPeriod: this.translate(circuit.bestPeriod, lang),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      travelerType: this.translate(circuit.travelerType, lang),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      idealFor: this.translate(circuit.idealFor, lang),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      priceNote:   this.translate(circuit.priceNote, lang),
+      highlights:  circuit.highlights ? (circuit.highlights[lang] ?? circuit.highlights['fr'] ?? []) : [],
+      included:    circuit.included   ? (circuit.included[lang]   ?? circuit.included['fr']   ?? []) : [],
+      notIncluded: circuit.notIncluded? (circuit.notIncluded[lang] ?? circuit.notIncluded['fr'] ?? []) : [],
+      itinerary:   circuit.itinerary  ? circuit.itinerary.map(day => ({
+        ...day,
+        title:       this.translate(day.title, lang),
+        description: this.translate(day.description, lang),
+      })) : [],
+    };
+  }
 
   /* ============================
      CREATE
@@ -29,7 +62,6 @@ export class CircuitsService {
       throw new NotFoundException('Circuit introuvable');
     }
 
-    // ✅ Fusionne les anciennes valeurs avec les nouvelles
     Object.assign(circuit, dto);
     return this.circuitRepo.save(circuit);
   }
@@ -37,28 +69,20 @@ export class CircuitsService {
   /* ============================
      HOME → 3 circuits
   ============================ */
-  async findHomeCircuits() {
-  return this.circuitRepo.find({
-    where: { isActive: true },
-    select: [
-      'id',
-      'title',
-      'description',
-      'duration',
-      'destination',
-      'theme',
-      'region',
-      'image',   // ✅ image principale
-      'images',  // ✅ toutes les images
-    ],
-    order: { id: 'DESC' },
-    take: 3,
-  });
-}
+  async findHomeCircuits(lang: string = 'fr') {
+    const circuits = await this.circuitRepo.find({
+      where: { isActive: true },
+      order: { id: 'DESC' },
+      take: 3,
+    });
+
+    return circuits.map(c => this.translateCircuit(c, lang));
+  }
+
   /* ============================
      ALL + FILTERS
   ============================ */
-  async findAllFiltered(region?: string, theme?: string) {
+  async findAllFiltered(region?: string, theme?: string, lang: string = 'fr') {
     const query = this.circuitRepo
       .createQueryBuilder('circuit')
       .where('circuit.isActive = :active', { active: true });
@@ -71,13 +95,14 @@ export class CircuitsService {
       query.andWhere('circuit.theme = :theme', { theme });
     }
 
-    return query.orderBy('circuit.id', 'DESC').getMany();
+    const circuits = await query.orderBy('circuit.id', 'DESC').getMany();
+    return circuits.map(c => this.translateCircuit(c, lang));
   }
 
   /* ============================
      DETAIL
   ============================ */
-  async findOne(id: number) {
+  async findOne(id: number, lang: string = 'fr') {
     const circuit = await this.circuitRepo.findOne({
       where: { id, isActive: true },
     });
@@ -86,7 +111,7 @@ export class CircuitsService {
       throw new NotFoundException('Circuit introuvable');
     }
 
-    return circuit;
+    return this.translateCircuit(circuit, lang);
   }
 
   /* ============================

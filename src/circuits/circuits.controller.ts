@@ -43,8 +43,8 @@ export class CircuitsController {
 
     return this.circuitsService.create({
       ...dto,
-      image: imageUrls[0] ?? dto.image,
-      images: imageUrls,
+      image: imageUrls[0] ?? dto.image ?? null,
+      images: imageUrls.length > 0 ? imageUrls : [],
     });
   }
 
@@ -92,23 +92,27 @@ export class CircuitsController {
 
   /* ============================
      PAGE CIRCUITS + FILTRES
-     GET /circuits?region=&theme=
+     GET /circuits?region=&theme=&lang=
   ============================ */
   @Get()
   findAll(
     @Query('region') region?: string,
     @Query('theme') theme?: string,
+    @Query('lang') lang?: string,
   ) {
-    return this.circuitsService.findAllFiltered(region, theme);
+    return this.circuitsService.findAllFiltered(region, theme, lang);
   }
 
   /* ============================
      DETAIL CIRCUIT
-     GET /circuits/:id
+     GET /circuits/:id?lang=
   ============================ */
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.circuitsService.findOne(id);
+  findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('lang') lang?: string,
+  ) {
+    return this.circuitsService.findOne(id, lang);
   }
 
   /* ============================

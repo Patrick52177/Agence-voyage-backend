@@ -14,7 +14,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env' : '.env.local',
+      envFilePath:
+        process.env.NODE_ENV === 'production' ? '.env' : '.env.local',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -25,7 +26,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       database: process.env.DB_NAME,
       entities: [Circuit, Lead],
       synchronize: true,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+      ssl:
+        process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       extra: process.env.DB_SSL === 'true' ? { family: 4 } : {},
     }),
     // ✅ Modules complets
