@@ -35,31 +35,37 @@ export class CreateCircuitDto {
   description: { fr: string; en: string; es: string };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   bestPeriod?: { fr: string; en: string; es: string };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   travelerType?: { fr: string; en: string; es: string };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   idealFor?: { fr: string; en: string; es: string };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   priceNote?: { fr: string; en: string; es: string };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   highlights?: { fr: string[]; en: string[]; es: string[] };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsArray()
   itinerary?: {
@@ -70,11 +76,13 @@ export class CreateCircuitDto {
   }[];
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   included?: { fr: string[]; en: string[]; es: string[] };
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsObject()
   notIncluded?: { fr: string[]; en: string[]; es: string[] };
@@ -97,6 +105,7 @@ export class CreateCircuitDto {
   image?: string;
 
   @IsOptional()
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @Transform(({ value }) => parseJson(value))
   @IsArray()
   images?: string[];
